@@ -214,26 +214,72 @@ Arquivo CSV com colunas:
 
 ### Método de Análise
 
-O programa utiliza o **Método das Impedâncias de Barra (Zbus)** para análise de faltas simétricas:
+O programa utiliza o **Método das Impedâncias de Barra (Zbus)** para calcular correntes e tensões durante uma falta trifásica em qualquer barra do sistema.
 
 1. **Matriz Ybus**: Construída a partir das admitâncias das linhas e geradores
-2. **Matriz Zbus**: Obtida pela inversão da matriz Ybus
-3. **Corrente de Falta**: Calculada usando o equivalente de Thévenin
-4. **Tensões Pós-Falta**: Determinadas pelo princípio da superposição
+3. **Matriz Zbus**: Obtida pela inversão da matriz Ybus
+4. **Corrente de Falta**: Calculada usando o equivalente de Thévenin
+5. **Tensões Pós-Falta**: Determinadas pelo princípio da superposição
+
+**Matriz Ybus**
+A matriz Ybus é uma representação nodal das admitâncias (inverso das impedâncias) do sistema. Ela é construída a partir de:
+Admitâncias das linhas de transmissão ($Y=1/Z$);
+Admitâncias dos transformadores;
+Admitâncias de carga (se consideradas);
+Admitâncias equivalentes de geradores (reatância subtransiente, quando aplicável).
+
+A matriz Ybus tem dimensão n x n onde n é o número de barras do sistema. Para cada linha ou conexão entre barra i e j aplica-se:
+
+$Y_{ii} += 1/Z_{ij}$ , para cada linha conectada a barra i;
+$Y_{ij} = -1/Z_{ij}$ ;
+
+**Matriz Zbus**
+A matriz Zbus é simplesmente a inversa de Ybus:
+
+$Z_{bus} = Y_{bus}^{-1}$
+
+**Corrente de Falta**
+A partir de um curto circuito trifásico na barra i, a impedância equivalente do sistema vista dessa barra é $Z_ii$
+A corrente de falta é dada por:
+
+$I_f = \frac{V_{pref}(i)}{Z_{bus}(i)}$
+
+Essa corrente representa a contribuição do sistema inteiro à falta.
+
+**Tensões Pós-Falta**
+Utiliza-se o princípio da superposição para obter as tensões durante a falta. A perturbação gerada pela corrente de falta em outras barras é dada por:
+
+$V_{pos} = V_{pref} - Z_{bus}(:,i)*I_f$
+
+Onde $Z_{bus}(:,i)$ é a coluna i da matriz Zbus associada a barra com falta.
+
+**Correntes dos Geradores**
+Para cada gerador conectado à barra k, a corrente injetada na rede durante a falta é:
+
+$I_{gk} = \frac{V_{pref}(k) - V_{pos}(k)}{jX_g^"}$
+
+Onde $X_g^"$ é a reatância subtransiente do gerador.
+
+**Correntes nas Linhas**
+Para calcular a corrente que flui entre duas barras conectadas diretamente por uma impedância $Z_l$, aplica-se:
+
+$I_l = \frac{V_i-V_j}{Z_l}$
+
+Onde $V_i$ e $V_j$ representam as tensões pós falta das barras conectadas pela linha. 
 
 ### Fórmulas Utilizadas
 
 - **Corrente de Falta**: `If = V_prefalta / Zbus(i,i)`
 - **Tensões Pós-Falta**: `V_pos = V_pre - Zbus(:,i) * If`
 - **Correntes dos Geradores**: `Ig = (V_pre - V_pos) / Zg`
-- **Correntes nas Linhas**: `Il = (V1 - V2) / Zl`
+- **Correntes nas Linhas**: `Il = (Vi - Vj) / Zl`
 
 ## Limitações
 
 - **Apenas faltas simétricas** (trifásicas)
 - **Sistema balanceado** (sequência positiva)
 - **Impedâncias constantes** (não considera saturação)
-- **Falta de uma forma imediata de passagem de parâmetros de entrada
+- **Falta de uma forma imediata de envio dos parâmetros de entrada**
 
 ## Solução de Problemas
 
