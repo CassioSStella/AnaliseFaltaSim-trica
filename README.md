@@ -288,5 +288,5 @@ Para dúvidas ou sugestões, entre em contato através dos issues do GitHub.
 
 **Versão**: 2.0  
 **Data**: 2025  
-**Autor**: Cassio Slika Stella
+**Autor**: Cassio Slika Stella    
 **Linguagem**: Python 3.7+
